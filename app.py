@@ -7,8 +7,8 @@ app = Flask(__name__)
 # API for sending SMS (example with Twilio)
 def send_sms(student_name, student_mobile, fee_amount):
     # Your Twilio account SID and Auth Token
-    account_sid = 'AC736de960eb44814f0f4b2f95376f40c3'
-    auth_token = '7c2d99d8c23e36c8e8863a18ef26cc31'
+    account_sid = ''
+    auth_token = ''
     client = Client(account_sid, auth_token)
 
     message = client.messages.create(
