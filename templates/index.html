@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice Generator - The Aryabhatt Institute</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+    }
+    .container {
+      background: #ffffff;
+      max-width: 750px;
+      margin: auto;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #0d6efd;
+      margin-bottom: 10px;
+    }
+    h4 {
+      text-align: center;
+      color: #555;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      transition: border-color 0.3s ease-in-out;
+    }
+    input:focus {
+      border-color: #0d6efd;
+      outline: none;
+    }
+    #invoice {
+      margin-top: 30px;
+      padding: 25px;
+      background: #f9f9f9;
+      border-left: 5px solid #0d6efd;
+      border-radius: 10px;
+    }
+    .signature {
+      margin-top: 30px;
+      text-align: right;
+    }
+    .btn {
+      margin-top: 20px;
+      background: linear-gradient(to right, #0d6efd, #0a58ca);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease-in-out;
+      margin-right: 10px;
+    }
+    .btn:hover {
+      background: linear-gradient(to right, #0a58ca, #084298);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="invoiceContainer">
+  <h2>The Aryabhatt Institute</h2>
+  <h4>Location: Kesat Dasiyaon | Mobile: 6201444398 /8809077040</h4>
+
+  <label>Student Name:</label>
+  <input type="text" id="studentName">
+
+  <label>Class:</label>
+  <input type="text" id="className">
+
+  <label>Duration (in months):</label>
+  <input type="number" id="duration" min="1" max="12" value="1" onchange="calculateFee()">
+
+  <label>Fee per Month:</label>
+  <input type="number" id="feePerMonth" value="500" onchange="calculateFee()">
+
+  <div id="invoice">
+    <p><strong>Date:</strong> <span id="date"></span></p>
+    <p><strong>Student Name:</strong> <span id="nameOutput"></span></p>
+    <p><strong>Class:</strong> <span id="classOutput"></span></p>
+    <p><strong>Duration:</strong> <span id="durationOutput"></span> Month(s)</p>
+    <p><strong>Total Fee:</strong> ₹<span id="feeOutput"></span></p>
+    <p><strong>Due Fee (if applicable):</strong> ₹<span id="dueOutput"></span></p>
+
+    <div class="signature">
+      <p>Authorized Signature</p>
+      <img src="/static/signature.png" alt="Signature" height="50">
+    </div>
+  </div>
+
+  <button class="btn" onclick="generateInvoice()">Generate Invoice</button>
+  <button class="btn" onclick="downloadPDF()">Download PDF</button>
+  <button class="btn" onclick="sendSms()">Send SMS</button>
+</div>
+
+<script>
+  function calculateFee() {
+    const duration = parseInt(document.getElementById("duration").value);
+    const feePerMonth = parseInt(document.getElementById("feePerMonth").value);
+    const totalFee = feePerMonth * duration;
+    const fullYearFee = feePerMonth * 12;
+    const dueFee = fullYearFee - totalFee;
+
+    document.getElementById("feeOutput").innerText = totalFee;
+    document.getElementById("durationOutput").innerText = duration;
+    document.getElementById("dueOutput").innerText = dueFee;
+  }
+
+  function generateInvoice() {
+    const name = document.getElementById("studentName").value;
+    const className = document.getElementById("className").value;
+    const duration = parseInt(document.getElementById("duration").value);
+    const feePerMonth = parseInt(document.getElementById("feePerMonth").value);
+
+    if (name && className && duration && feePerMonth) {
+      document.getElementById("nameOutput").innerText = name;
+      document.getElementById("classOutput").innerText = className;
+      document.getElementById("durationOutput").innerText = duration;
+      document.getElementById("feeOutput").innerText = feePerMonth * duration;
+
+      const today = new Date();
+      document.getElementById("date").innerText = today.toLocaleDateString();
+    } else {
+      alert("Please fill out all fields correctly.");
+    }
+  }
+
+  function downloadPDF() {
+    const printWindow = window.open('', '', 'height=800,width=600');
+    const invoiceContent = document.getElementById("invoice").outerHTML;
+    const styles = `
+      <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; }
+        h2, h4 { text-align: center; }
+        #invoice { border-left: 5px solid #0d6efd; background: #f9f9f9; padding: 20px; border-radius: 10px; }
+        .signature { text-align: right; margin-top: 30px; }
+      </style>`;
+
+    printWindow.document.write('<html><head><title>Invoice</title>' + styles + '</head><body>');
+    printWindow.document.write('<h2>The Aryabhatt Institute</h2>');
+    printWindow.document.write('<h4>Location: Kesat Dasiyaon | Mobile: 9876543210</h4>');
+    printWindow.document.write(invoiceContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  }
+
+  function sendSms() {
+    const studentName = document.getElementById("studentName").value;
+    const studentMobile = "+91" + prompt("Enter student's mobile number");
+    const feeAmount = parseInt(document.getElementById("feeOutput").innerText);
+
+    fetch('/send_sms', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        student_name: studentName,
+        student_mobile: studentMobile,
+        fee_amount: feeAmount
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      alert('SMS sent successfully');
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
+  window.onload = () => {
+    document.getElementById("date").innerText = new Date().toLocaleDateString();
+    calculateFee();
+  };
+</script>
+
+</body>
+</html>
